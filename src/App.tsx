@@ -6,10 +6,8 @@ export class App extends React.Component<
   {},
   { cmsIndexId?: string; useCache: boolean }
 > {
-  private readonly txtCmsIdRef: React.Ref<HTMLInputElement> = React.createRef();
-  private readonly chkDisableCacheRef: React.Ref<
-    HTMLInputElement
-  > = React.createRef();
+  private readonly txtCmsIdRef = React.createRef<HTMLInputElement>();
+  private readonly chkDisableCacheRef = React.createRef<HTMLInputElement>();
 
   constructor(props: any) {
     super(props);
@@ -52,6 +50,15 @@ export class App extends React.Component<
   }
 
   onLoadConfigIndex = () => {
+    if (
+      !this.txtCmsIdRef ||
+      !this.txtCmsIdRef.current ||
+      !this.chkDisableCacheRef ||
+      !this.chkDisableCacheRef.current
+    ) {
+      return;
+    }
+
     this.setState({
       cmsIndexId: this.txtCmsIdRef.current.value as string,
       useCache: !(this.chkDisableCacheRef.current.checked as boolean)
@@ -59,6 +66,10 @@ export class App extends React.Component<
   };
 
   onLoadDefault = () => {
+    if (!this.txtCmsIdRef || !this.txtCmsIdRef.current) {
+      return;
+    }
+
     this.txtCmsIdRef.current.value = "BBUsYQa";
     this.onLoadConfigIndex();
   };
