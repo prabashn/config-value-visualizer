@@ -1,0 +1,61 @@
+.app {
+  padding: 10px;
+  font-family: sans-serif;
+}
+
+.app-input {
+  display: inline-block;
+}
+
+h1 {
+  text-align: center;
+}
+
+label {
+  display: inline-block;
+  width: 200px;
+  margin: 0 10px;
+  text-align: right;
+}
+
+input {
+  margin: 0;
+}
+
+.input {
+  margin-bottom: 10px;
+}
+
+button {
+  margin-right: 10px;
+}
+
+.message {
+  margin: 20px;
+  color: red;
+}
+
+.key {
+  color: red;
+  font-weight: bold;
+}
+
+.value {
+  font-weight: bold;
+}
+
+.property {
+  font-family: "Courier New", Courier, monospace;
+  margin: 10px 0 0 30px;
+  border: 1px solid black;
+  border-width: 1px 0 0 1px;
+  padding: 5px;
+}
+
+.value-group {
+  color: black;
+  margin: 10px 0 0 0;
+  border: 1px solid black;
+  border-width: 1px 0 0 1px;
+  padding: 5px;
+}
