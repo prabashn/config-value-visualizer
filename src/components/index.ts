@@ -1,2 +1,2 @@
 export * from "./IndexComponent";
-export * from "./ScopedProperty";
+export * from "./ScopedPropertyComponent";

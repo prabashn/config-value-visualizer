@@ -38,17 +38,37 @@ export class ScopedPropertyComponent extends React.Component<{
         <div className="value">
           = {typeof value === "string" ? `"${value}"` : value}
         </div>
-        <ul>{this.renderScopes(scopedValues.map(value => value.scope))}</ul>
+        <ul>{this.renderScopes(scopedValues)}</ul>
       </div>
     ));
   }
 
-  renderScopes(scopes: Array<Scope | undefined>): React.ReactNode {
+  renderScopes(scopedValues: Array<ScopedPropertyValue>): React.ReactNode {
     return (
       <ul>
-        {scopes.map((scope, index) => (
-          <li key={index}>{JSON.stringify(scope || "default")}</li>
-        ))}
+        {scopedValues.map((scopedValue, index) => {
+          const scopeHref = scopedValue.config && scopedValue.config._id;
+
+          const scopeAnchor = scopeHref ? (
+            <React.Fragment>
+              (
+              <a
+                href={`https://www.msncms.microsoft.com/amp/document/${scopeHref}?mode=json`}
+                target="_new"
+              >
+                {scopeHref}
+              </a>
+              )
+            </React.Fragment>
+          ) : null;
+
+          return (
+            <li key={index}>
+              {JSON.stringify(scopedValue.scope || "default")}
+              {scopeAnchor}
+            </li>
+          );
+        })}
       </ul>
     );
   }

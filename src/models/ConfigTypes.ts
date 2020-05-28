@@ -21,6 +21,7 @@ export interface Scope {
 }
 
 export interface Config {
+  _id: string;
   properties?: any;
 }
 

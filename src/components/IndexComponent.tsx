@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ConfigPropertyTree } from "../models";
-import { ScopedPropertyComponent } from "./ScopedProperty";
+import { ScopedPropertyComponent } from "./ScopedPropertyComponent";
 import { loadConfigsFromIndex } from "../helpers";
 
 export class IndexComponent extends React.Component<

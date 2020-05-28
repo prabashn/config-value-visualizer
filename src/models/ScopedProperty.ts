@@ -1,5 +1,5 @@
 import { ScopedPropertyValue } from "./ScopedPropertyValue";
-import { Scope } from "./ConfigTypes";
+import { Scope, ScopedConfig } from "./ConfigTypes";
 
 export class ScopedProperty {
   public readonly children: { [key: string]: ScopedProperty } = {};
@@ -50,18 +50,20 @@ export class ScopedProperty {
   public static parseObject(
     key: string,
     value: any,
-    scope?: Scope
+    config: ScopedConfig
   ): ScopedProperty {
     const scopedProperty = new ScopedProperty(key);
 
     if (value == null) {
-      scopedProperty.addLeafValue(new ScopedPropertyValue(null, scope));
+      scopedProperty.addLeafValue(
+        new ScopedPropertyValue(null, config.config, config.scope)
+      );
     } else if (value instanceof Array) {
       value.forEach((childValue, valueIndex) => {
         const childKey = `${valueIndex}`;
         const childProp = new ScopedProperty(childKey);
         childProp.merge(
-          ScopedProperty.parseObject(childKey, childValue, scope)
+          ScopedProperty.parseObject(childKey, childValue, config)
         );
         scopedProperty.addChildProperty(childProp);
       });
@@ -70,12 +72,14 @@ export class ScopedProperty {
         const childValue = value[childKey];
         const childProp = new ScopedProperty(childKey);
         childProp.merge(
-          ScopedProperty.parseObject(childKey, childValue, scope)
+          ScopedProperty.parseObject(childKey, childValue, config)
         );
         scopedProperty.addChildProperty(childProp);
       }
     } else {
-      scopedProperty.addLeafValue(new ScopedPropertyValue(value, scope));
+      scopedProperty.addLeafValue(
+        new ScopedPropertyValue(value, config.config, config.scope)
+      );
     }
     return scopedProperty;
   }

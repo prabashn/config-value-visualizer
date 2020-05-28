@@ -9,7 +9,7 @@ export class ConfigPropertyTree {
       const configProperty = ScopedProperty.parseObject(
         this.root.key,
         config.config.properties,
-        config.scope
+        config
       );
       this.root.merge(configProperty);
     }
