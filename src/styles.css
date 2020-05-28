@@ -59,3 +59,14 @@ button {
   border-width: 1px 0 0 1px;
   padding: 5px;
 }
+
+.removable-scope {
+  /* text-decoration: line-through; */
+  color: grey;
+}
+
+.removable {
+  color: red;
+  text-transform: uppercase;
+  font-weight: bold;
+}

@@ -38,7 +38,7 @@ export class ScopedPropertyComponent extends React.Component<{
         <div className="value">
           = {typeof value === "string" ? `"${value}"` : value}
         </div>
-        <ul>{this.renderScopes(scopedValues)}</ul>
+        {this.renderScopes(scopedValues)}
       </div>
     ));
   }
@@ -62,10 +62,19 @@ export class ScopedPropertyComponent extends React.Component<{
             </React.Fragment>
           ) : null;
 
+          const canBeRemoved =
+            scopedValue.scope &&
+            scopedValues.find(v => !v.scope) &&
+            scopedValues.length > 1 &&
+            !scopedValue.isArrayItem;
+
           return (
             <li key={index}>
-              {JSON.stringify(scopedValue.scope || "default")}
+              <span className={canBeRemoved ? "removable-scope" : ""}>
+                {JSON.stringify(scopedValue.scope || "default")}
+              </span>
               {scopeAnchor}
+              {canBeRemoved && <span className="removable"> Redundant</span>}
             </li>
           );
         })}
