@@ -1,4 +1,5 @@
 import { ScopedConfig, Config, Scope } from "./ConfigTypes";
+import { isEqual } from "lodash-es";
 
 export class ScopedPropertyValue implements ScopedConfig {
   public constructor(
@@ -7,4 +8,8 @@ export class ScopedPropertyValue implements ScopedConfig {
     public readonly scope?: Scope,
     public readonly isArrayItem?: boolean
   ) {}
+
+  public equals(other: ScopedPropertyValue): boolean {
+    return isEqual(this, other);
+  }
 }

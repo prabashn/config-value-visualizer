@@ -9,7 +9,9 @@ export class ScopedPropertyComponent extends React.Component<{
     const { property } = this.props;
     return (
       <div className="property" key={property.key}>
-        <div className="key">["{property.key}"]</div>
+        <div className="key">
+          ["{property.key}"] {property.isArray ? "(Array)" : ""}
+        </div>
         {this.renderScopedValues(property.values)}
         {map(property.children, (childProp, key) => (
           <ScopedPropertyComponent key={key} property={childProp} />
@@ -45,7 +47,7 @@ export class ScopedPropertyComponent extends React.Component<{
 
   renderScopes(scopedValues: Array<ScopedPropertyValue>): React.ReactNode {
     return (
-      <ul>
+      <ol>
         {scopedValues.map((scopedValue, index) => {
           const scopeHref = scopedValue.config && scopedValue.config._id;
 
@@ -78,7 +80,7 @@ export class ScopedPropertyComponent extends React.Component<{
             </li>
           );
         })}
-      </ul>
+      </ol>
     );
   }
 }
