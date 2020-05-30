@@ -17,7 +17,9 @@ export class ScopedPropertyComponent extends React.Component<{
         <div className="key">
           ["{property.key}"] {property.isArray ? "(Array)" : ""}
         </div>
+        {/* Render the parent property scopes */}
         {this.renderScopes(property.mergedConfigs)}
+        {/* Render the value scopes */}
         {this.renderScopedValues(property.values)}
         {map(property.children, (childProp, key) => (
           <ScopedPropertyComponent key={key} property={childProp} />
@@ -47,26 +49,33 @@ export class ScopedPropertyComponent extends React.Component<{
       // and the value is not part of an array
       !scopedValue.isArrayItem;
 
-    return map(valueGroups, (scopedValues, value) => (
-      <div className="value-group">
-        <div className="value">
-          = {typeof value === "string" ? `"${value}"` : value}
+    return map(valueGroups, (scopedValues, value) => {
+      const checkForRemovalEligibility =
+        // the list of scoped values contains a default scope that we can fallback to
+        scopedValues.some(v => !v.scope) &&
+        // and we have more than one item in the scope list
+        scopedValues.length > 1;
+
+      return (
+        <div className="value-group">
+          <div className="value">
+            = {typeof value === "string" ? `"${value}"` : value}
+          </div>
+          {this.renderScopes(
+            scopedValues,
+            checkForRemovalEligibility,
+            canBeRemovedCheck
+          )}
         </div>
-        {this.renderScopes(scopedValues, canBeRemovedCheck)}
-      </div>
-    ));
+      );
+    });
   }
 
   renderScopes<T extends ScopedConfig>(
     scopedValues: Array<T>,
+    checkForRemovalEligibility?: boolean,
     canBeRemovedCheck?: (scopedValue: T) => boolean
   ): React.ReactNode {
-    const checkForRemovalEligibility =
-      // the list of scoped values contains a default scope that we can fallback to
-      scopedValues.some(v => !v.scope) &&
-      // and we have more than one item in the scope list
-      scopedValues.length > 1;
-
     return (
       <ul>
         {scopedValues.map((scopedValue, index) => {
