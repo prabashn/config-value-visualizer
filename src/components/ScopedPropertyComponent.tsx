@@ -1,6 +1,11 @@
 import * as React from "react";
 import { map, groupBy } from "lodash-es";
-import { ScopedProperty, ScopedPropertyValue, Scope } from "../models";
+import {
+  ScopedProperty,
+  ScopedPropertyValue,
+  Scope,
+  ScopedConfig
+} from "../models";
 
 export class ScopedPropertyComponent extends React.Component<{
   property: ScopedProperty;
@@ -12,6 +17,7 @@ export class ScopedPropertyComponent extends React.Component<{
         <div className="key">
           ["{property.key}"] {property.isArray ? "(Array)" : ""}
         </div>
+        {this.renderScopes(property.mergedConfigs)}
         {this.renderScopedValues(property.values)}
         {map(property.children, (childProp, key) => (
           <ScopedPropertyComponent key={key} property={childProp} />
@@ -35,22 +41,36 @@ export class ScopedPropertyComponent extends React.Component<{
     //   );
     // }
 
+    const canBeRemovedCheck = (scopedValue: ScopedPropertyValue) =>
+      // this scope is a non-default scope
+      scopedValue.scope != null &&
+      // and the value is not part of an array
+      !scopedValue.isArrayItem;
+
     return map(valueGroups, (scopedValues, value) => (
       <div className="value-group">
         <div className="value">
           = {typeof value === "string" ? `"${value}"` : value}
         </div>
-        {this.renderScopes(scopedValues)}
+        {this.renderScopes(scopedValues, canBeRemovedCheck)}
       </div>
     ));
   }
 
-  renderScopes(scopedValues: Array<ScopedPropertyValue>): React.ReactNode {
+  renderScopes<T extends ScopedConfig>(
+    scopedValues: Array<T>,
+    canBeRemovedCheck?: (scopedValue: T) => boolean
+  ): React.ReactNode {
+    const checkForRemovalEligibility =
+      // the list of scoped values contains a default scope that we can fallback to
+      scopedValues.some(v => !v.scope) &&
+      // and we have more than one item in the scope list
+      scopedValues.length > 1;
+
     return (
-      <ol>
+      <ul>
         {scopedValues.map((scopedValue, index) => {
           const scopeHref = scopedValue.config && scopedValue.config._id;
-
           const scopeAnchor = scopeHref ? (
             <React.Fragment>
               (
@@ -65,10 +85,9 @@ export class ScopedPropertyComponent extends React.Component<{
           ) : null;
 
           const canBeRemoved =
-            scopedValue.scope &&
-            scopedValues.find(v => !v.scope) &&
-            scopedValues.length > 1 &&
-            !scopedValue.isArrayItem;
+            checkForRemovalEligibility &&
+            canBeRemovedCheck &&
+            canBeRemovedCheck(scopedValue);
 
           return (
             <li key={index}>
@@ -80,7 +99,7 @@ export class ScopedPropertyComponent extends React.Component<{
             </li>
           );
         })}
-      </ol>
+      </ul>
     );
   }
 }

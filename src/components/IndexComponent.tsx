@@ -1,7 +1,7 @@
 import * as React from "react";
 import { ScopedProperty } from "../models";
 import { ScopedPropertyComponent } from "./ScopedPropertyComponent";
-import { loadConfigsFromIndex } from "../helpers";
+import { loadConfigsFromIndex } from "../services";
 import { isEqual } from "lodash-es";
 
 export interface IndexComponentProps {
@@ -80,7 +80,7 @@ export class IndexComponent extends React.Component<
       this.props.useCache
     );
 
-    let propertyTree = new ScopedProperty("properties", false);
+    let propertyTree = new ScopedProperty("properties", null, false);
 
     for (const config of scopedConfigs) {
       const configProperty = ScopedProperty.parseObject(
