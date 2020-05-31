@@ -8,6 +8,7 @@ export interface IndexComponentProps {
   cmsIndexId?: string;
   useCache: boolean;
   flattenArrays?: boolean;
+  autoExpandScopes?: boolean;
 }
 
 export interface IndexComponentState {
@@ -65,7 +66,11 @@ export class IndexComponent extends React.Component<
     return (
       <React.Fragment>
         {/* <span>Render count = {++this.renderCount}</span> */}
-        <ScopedPropertyComponent property={propertyTree} />;
+        <ScopedPropertyComponent
+          property={propertyTree}
+          autoExpandScopes={this.props.autoExpandScopes}
+        />
+        ;
       </React.Fragment>
     );
   }

@@ -1,14 +1,12 @@
 import * as React from "react";
-import { map, groupBy } from "lodash-es";
-import {
-  ScopedProperty,
-  ScopedPropertyValue,
-  Scope,
-  ScopedConfig
-} from "../models";
+import { map } from "lodash-es";
+import { ScopedPropertyListComponent } from "./ScopedListComponent";
+import { ScopedProperty } from "../models";
+import { ScopedValuesListComponent } from "./ScopedValuesListComponent";
 
 export class ScopedPropertyComponent extends React.Component<{
   property: ScopedProperty;
+  autoExpandScopes?: boolean;
 }> {
   render(): React.ReactNode {
     const { property } = this.props;
@@ -18,97 +16,19 @@ export class ScopedPropertyComponent extends React.Component<{
           ["{property.key}"] {property.isArray ? "(Array)" : ""}
         </div>
         {/* Render the parent property scopes */}
-        {this.renderScopes(property.mergedConfigs)}
+        <ScopedPropertyListComponent
+          scopedItems={property.mergedConfigs}
+          autoExpandScopes={this.props.autoExpandScopes}
+        />
         {/* Render the value scopes */}
-        {this.renderScopedValues(property.values)}
+        <ScopedValuesListComponent
+          scopedValues={property.values}
+          autoExpandScopes={this.props.autoExpandScopes}
+        />
         {map(property.children, (childProp, key) => (
           <ScopedPropertyComponent key={key} property={childProp} />
         ))}
       </div>
-    );
-  }
-
-  renderScopedValues(values: Array<ScopedPropertyValue>): React.ReactNode {
-    const valueGroups = groupBy(values, val => val.value);
-
-    // const uniqueValues = Object.keys(valueGroups);
-    // if (uniqueValues.length <= 1) {
-    //   const uniqueValue = uniqueValues[0];
-    //   const scopeCount = valueGroups[uniqueValue]?.length;
-    //   const scopeCounter = scopeCount ? ` (${scopeCount})` : "";
-    //   return (
-    //     <div className="value">
-    //       {uniqueValue}{scopeCounter}
-    //     </div>
-    //   );
-    // }
-
-    const canBeRemovedCheck = (scopedValue: ScopedPropertyValue) =>
-      // this scope is a non-default scope
-      scopedValue.scope != null &&
-      // and the value is not part of an array
-      !scopedValue.isArrayItem;
-
-    return map(valueGroups, (scopedValues, value) => {
-      const checkForRemovalEligibility =
-        // the list of scoped values contains a default scope that we can fallback to
-        scopedValues.some(v => !v.scope) &&
-        // and we have more than one item in the scope list
-        scopedValues.length > 1;
-
-      return (
-        <div className="value-group">
-          <div className="value">
-            = {typeof value === "string" ? `"${value}"` : value}
-          </div>
-          {this.renderScopes(
-            scopedValues,
-            checkForRemovalEligibility,
-            canBeRemovedCheck
-          )}
-        </div>
-      );
-    });
-  }
-
-  renderScopes<T extends ScopedConfig>(
-    scopedValues: Array<T>,
-    checkForRemovalEligibility?: boolean,
-    canBeRemovedCheck?: (scopedValue: T) => boolean
-  ): React.ReactNode {
-    return (
-      <ul>
-        {scopedValues.map((scopedValue, index) => {
-          const scopeHref = scopedValue.config && scopedValue.config._id;
-          const scopeAnchor = scopeHref ? (
-            <React.Fragment>
-              (
-              <a
-                href={`https://www.msncms.microsoft.com/amp/document/${scopeHref}?mode=json`}
-                target="_new"
-              >
-                {scopeHref}
-              </a>
-              )
-            </React.Fragment>
-          ) : null;
-
-          const canBeRemoved =
-            checkForRemovalEligibility &&
-            canBeRemovedCheck &&
-            canBeRemovedCheck(scopedValue);
-
-          return (
-            <li key={index}>
-              <span className={canBeRemoved ? "removable-scope" : ""}>
-                {JSON.stringify(scopedValue.scope || "default")}
-              </span>
-              {scopeAnchor}
-              {canBeRemoved && <span className="removable"> Redundant</span>}
-            </li>
-          );
-        })}
-      </ul>
     );
   }
 }

@@ -143,12 +143,11 @@ export class ScopedProperty {
       );
     } else if (typeof value === "object") {
       for (const childKey in value) {
-        const childValue = value[childKey];
         const childProp = new ScopedProperty(childKey, config);
         childProp.merge(
           ScopedProperty.parseObject(
             childKey,
-            childValue,
+            value[childKey],
             config,
             isArrayItem,
             flattenArrays
