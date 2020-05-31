@@ -4,28 +4,36 @@ import { ScopedPropertyListComponent } from "./ScopedListComponent";
 import { ScopedProperty } from "../models";
 import { ScopedValuesListComponent } from "./ScopedValuesListComponent";
 
-export class ScopedPropertyComponent extends React.Component<{
+export interface ScopedPropertyComponentProps {
   property: ScopedProperty;
   autoExpandScopes?: boolean;
-}> {
+}
+
+export class ScopedPropertyComponent extends React.Component<
+  ScopedPropertyComponentProps
+> {
   render(): React.ReactNode {
-    const { property } = this.props;
+    const { property, autoExpandScopes } = this.props;
     return (
       <div className="property" key={property.key}>
         <div className="key">
           ["{property.key}"] {property.isArray ? "(Array)" : ""}
         </div>
         {/* Render the parent property scopes */}
-        {this.props.autoExpandScopes && (
+        {autoExpandScopes && (
           <ScopedPropertyListComponent scopedItems={property.mergedConfigs} />
         )}
         {/* Render the value scopes */}
         <ScopedValuesListComponent
           scopedValues={property.values}
-          autoExpandScopes={this.props.autoExpandScopes}
+          autoExpandScopes={autoExpandScopes}
         />
         {map(property.children, (childProp, key) => (
-          <ScopedPropertyComponent key={key} property={childProp} />
+          <ScopedPropertyComponent
+            key={key}
+            property={childProp}
+            autoExpandScopes={autoExpandScopes}
+          />
         ))}
       </div>
     );

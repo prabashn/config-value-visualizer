@@ -45,7 +45,6 @@ export class ScopedValuesListComponent extends React.Component<
           <div className="value">
             = {typeof value === "string" ? `"${value}"` : value}
           </div>
-
           {this.props.autoExpandScopes && (
             <ScopedListComponent
               scopedItems={scopedValues}
