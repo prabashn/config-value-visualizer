@@ -16,10 +16,9 @@ export class ScopedPropertyComponent extends React.Component<{
           ["{property.key}"] {property.isArray ? "(Array)" : ""}
         </div>
         {/* Render the parent property scopes */}
-        <ScopedPropertyListComponent
-          scopedItems={property.mergedConfigs}
-          autoExpandScopes={this.props.autoExpandScopes}
-        />
+        {this.props.autoExpandScopes && (
+          <ScopedPropertyListComponent scopedItems={property.mergedConfigs} />
+        )}
         {/* Render the value scopes */}
         <ScopedValuesListComponent
           scopedValues={property.values}

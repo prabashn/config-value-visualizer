@@ -3,8 +3,6 @@ import { ScopedConfig } from "../models";
 
 export interface ScopedListComponentProps<T extends ScopedConfig> {
   scopedItems: Array<T>;
-  autoExpandScopes?: boolean;
-  checkForRemovalEligibility?: boolean;
   canBeRemovedCheck?: (scopedValue: T) => boolean;
 }
 
@@ -12,15 +10,7 @@ export class ScopedListComponent<
   T extends ScopedConfig
 > extends React.Component<ScopedListComponentProps<T>> {
   render(): React.ReactNode {
-    if (!this.props.autoExpandScopes) {
-      return null;
-    }
-
-    const {
-      scopedItems,
-      canBeRemovedCheck,
-      checkForRemovalEligibility
-    } = this.props;
+    const { scopedItems, canBeRemovedCheck } = this.props;
 
     return (
       <ul>
@@ -40,9 +30,7 @@ export class ScopedListComponent<
           ) : null;
 
           const canBeRemoved =
-            checkForRemovalEligibility &&
-            canBeRemovedCheck &&
-            canBeRemovedCheck(scopedItem);
+            canBeRemovedCheck && canBeRemovedCheck(scopedItem);
 
           return (
             <li key={index}>
