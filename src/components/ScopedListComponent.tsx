@@ -1,5 +1,6 @@
 import * as React from "react";
 import { ScopedConfig } from "../models";
+import { scopedConfigComparer, ScopedConfigDiff } from "../models/CompareList";
 
 export interface ScopedListComponentProps<T extends ScopedConfig> {
   scopedItems: Array<T>;
@@ -14,6 +15,7 @@ export interface ScopedListComponentState {
    */
   prevProps?: ScopedListComponentProps<any>;
   scopeVisibility: boolean | null;
+  configDiff?: ScopedConfigDiff;
 }
 
 export class ScopedListComponent<
@@ -62,36 +64,68 @@ export class ScopedListComponent<
     return (
       <React.Fragment>
         <input type="button" value="Hide scopes" onClick={this.toggleScopes} />
-        <ul>
-          {scopedItems.map((scopedItem, index) => {
-            const scopeHref = scopedItem.config && scopedItem.config._id;
-            const scopeAnchor = scopeHref ? (
-              <React.Fragment>
-                (
-                <a
-                  href={`https://www.msncms.microsoft.com/amp/document/${scopeHref}?mode=json`}
-                  target="_new"
-                >
-                  {scopeHref}
-                </a>
-                )
-              </React.Fragment>
-            ) : null;
+        <input type="button" value="Compare 1" onClick={this.compare1} />
+        <input type="button" value="Compare 2" onClick={this.compare2} />
+        {this.renderScopeList(scopedItems, canBeRemovedCheck)}
+        {this.renderScopeDiff()}
+      </React.Fragment>
+    );
+  }
 
-            const canBeRemoved =
-              canBeRemovedCheck && canBeRemovedCheck(scopedItem);
+  renderScopeList(
+    scopedItems: Array<T>,
+    canBeRemovedCheck?: (scopedValue: T) => boolean,
+    color?: string
+  ) {
+    return (
+      <ul style={{ color }}>
+        {scopedItems.map((scopedItem, index) => {
+          const scopeHref = scopedItem.config && scopedItem.config._id;
 
-            return (
-              <li key={index} className={canBeRemoved ? "removable-scope" : ""}>
-                <span className="scope">
-                  {JSON.stringify(scopedItem.scope || "default")}
-                </span>
-                {scopeAnchor}
-                {canBeRemoved && <span className="redundant"> Redundant</span>}
-              </li>
-            );
-          })}
-        </ul>
+          const scopeAnchor = scopeHref ? (
+            <React.Fragment>
+              (
+              <a
+                href={`https://www.msncms.microsoft.com/amp/document/${scopeHref}?mode=json`}
+                target="_new"
+              >
+                {scopeHref}
+              </a>
+              )
+            </React.Fragment>
+          ) : null;
+
+          const canBeRemoved =
+            canBeRemovedCheck && canBeRemovedCheck(scopedItem);
+
+          return (
+            <li key={index} className={canBeRemoved ? "removable-scope" : ""}>
+              <span className="scope">
+                {JSON.stringify(scopedItem.scope || "default")}
+              </span>
+              {scopeAnchor}
+              {canBeRemoved && <span className="redundant"> Redundant</span>}
+            </li>
+          );
+        })}
+      </ul>
+    );
+  }
+
+  renderScopeDiff(): React.ReactNode {
+    const { configDiff } = this.state;
+    if (!configDiff) {
+      return null;
+    }
+
+    return (
+      <React.Fragment>
+        First Only:
+        {this.renderScopeList(configDiff.firstOnly, null, "red")}
+        Second Only:
+        {this.renderScopeList(configDiff.secondOnly, null, "green")}
+        {/* Intersection:
+        {this.renderScopeList(configDiff.intersection, null, "blue")} */}
       </React.Fragment>
     );
   }
@@ -102,6 +136,41 @@ export class ScopedListComponent<
       scopeVisibility: !this.state.scopeVisibility
     });
   };
+
+  private compare1 = (): void => {
+    scopedConfigComparer.setConfigs(this.props.scopedItems, 1);
+  };
+
+  private compare2 = (): void => {
+    scopedConfigComparer.setConfigs(this.props.scopedItems, 2);
+    this.showDiff();
+  };
+
+  private showDiff(): void {
+    const diff = scopedConfigComparer.getDiff();
+    if (!diff) {
+      return;
+    }
+
+    this.setState({
+      ...this.state,
+      configDiff: diff
+    });
+
+    // const firstOnly = diff.firstOnly.map(
+    //   item => `id: ${item.config._id}, scope: ${JSON.stringify(item.scope)}`
+    // );
+    // const secondOnly = diff.secondOnly.map(
+    //   item => `id: ${item.config._id}, scope: ${JSON.stringify(item.scope)}`
+    // );
+    // const intersection = diff.intersection.map(
+    //   item => `id: ${item.config._id}, scope: ${JSON.stringify(item.scope)}`
+    // );
+
+    // alert(
+    //   `firstOnly: ${firstOnly}\nsecondOnly: ${secondOnly}\nintersection: ${intersection}`
+    // );
+  }
 }
 
 export class ScopedPropertyListComponent extends ScopedListComponent<
