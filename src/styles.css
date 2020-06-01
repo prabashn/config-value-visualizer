@@ -60,12 +60,12 @@ button {
   padding: 5px;
 }
 
-.removable-scope {
+.removable-scope .scope {
   /* text-decoration: line-through; */
   color: grey;
 }
 
-.removable {
+.redundant {
   color: red;
   text-transform: uppercase;
   font-weight: bold;
