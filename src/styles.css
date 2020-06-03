@@ -7,10 +7,6 @@
   display: inline-block;
 }
 
-h1 {
-  text-align: center;
-}
-
 label {
   display: inline-block;
   width: 200px;
@@ -41,6 +37,7 @@ button {
 }
 
 .value {
+  color: black;
   font-weight: bold;
 }
 
@@ -50,6 +47,11 @@ button {
   border: 1px solid black;
   border-width: 1px 0 0 1px;
   padding: 5px;
+}
+
+.property input {
+  margin-right: 5px;
+  min-width: 30px;
 }
 
 .value-group {
@@ -69,4 +71,8 @@ button {
   color: red;
   text-transform: uppercase;
   font-weight: bold;
+}
+
+.diff {
+  margin-top: 10px;
 }

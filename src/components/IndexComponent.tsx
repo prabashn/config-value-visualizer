@@ -69,6 +69,7 @@ export class IndexComponent extends React.Component<
         <ScopedPropertyComponent
           property={propertyTree}
           autoExpandScopes={this.props.autoExpandScopes}
+          visibilityDepth={this.props.autoExpandScopes ? 1000 : 0}
         />
         ;
       </React.Fragment>

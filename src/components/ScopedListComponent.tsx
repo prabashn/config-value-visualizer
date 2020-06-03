@@ -15,7 +15,7 @@ export interface ScopedListComponentState {
    */
   prevProps?: ScopedListComponentProps<any>;
   scopeVisibility: boolean | null;
-  configDiff?: ScopedConfigDiff;
+  configDiff?: ScopedConfigDiff | null;
 }
 
 export class ScopedListComponent<
@@ -43,6 +43,7 @@ export class ScopedListComponent<
     if (props !== state.prevProps) {
       return {
         prevProps: props,
+        configDiff: null,
         scopeVisibility: !!props.autoExpandScopes
       };
     }
@@ -57,17 +58,32 @@ export class ScopedListComponent<
 
     if (!scopeVisibility) {
       return (
-        <input type="button" value="Show scopes" onClick={this.toggleScopes} />
+        <React.Fragment>
+          {this.renderButtons(true)}
+          {this.renderScopeDiff()}
+        </React.Fragment>
       );
     }
 
     return (
       <React.Fragment>
-        <input type="button" value="Hide scopes" onClick={this.toggleScopes} />
-        <input type="button" value="Compare 1" onClick={this.compare1} />
-        <input type="button" value="Compare 2" onClick={this.compare2} />
+        {this.renderButtons(false)}
         {this.renderScopeList(scopedItems, canBeRemovedCheck)}
         {this.renderScopeDiff()}
+      </React.Fragment>
+    );
+  }
+
+  private renderButtons(isShowMode: boolean): React.ReactNode {
+    return (
+      <React.Fragment>
+        <input
+          type="button"
+          value={`${isShowMode ? "Show" : " Hide"} scopes`}
+          onClick={this.toggleScopes}
+        />
+        <input type="button" value="Diff source" onClick={this.compare1} />
+        <input type="button" value="Diff target" onClick={this.compare2} />
       </React.Fragment>
     );
   }
@@ -119,14 +135,14 @@ export class ScopedListComponent<
     }
 
     return (
-      <React.Fragment>
-        First Only:
+      <div className="diff">
+        {(configDiff.firstOnly.length && <div>Not present in:</div>) || null}
         {this.renderScopeList(configDiff.firstOnly, null, "red")}
-        Second Only:
+        {(configDiff.secondOnly.length && <div>Unique to this:</div>) || null}
         {this.renderScopeList(configDiff.secondOnly, null, "green")}
         {/* Intersection:
         {this.renderScopeList(configDiff.intersection, null, "blue")} */}
-      </React.Fragment>
+      </div>
     );
   }
 
@@ -156,20 +172,6 @@ export class ScopedListComponent<
       ...this.state,
       configDiff: diff
     });
-
-    // const firstOnly = diff.firstOnly.map(
-    //   item => `id: ${item.config._id}, scope: ${JSON.stringify(item.scope)}`
-    // );
-    // const secondOnly = diff.secondOnly.map(
-    //   item => `id: ${item.config._id}, scope: ${JSON.stringify(item.scope)}`
-    // );
-    // const intersection = diff.intersection.map(
-    //   item => `id: ${item.config._id}, scope: ${JSON.stringify(item.scope)}`
-    // );
-
-    // alert(
-    //   `firstOnly: ${firstOnly}\nsecondOnly: ${secondOnly}\nintersection: ${intersection}`
-    // );
   }
 }
 
