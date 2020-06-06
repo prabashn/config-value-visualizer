@@ -55,11 +55,11 @@ export class ScopedPropertyComponent extends React.Component<
         </span>
         <input
           type="button"
-          value={visible ? "-" : "+"}
+          value={visible ? "─" : "┿"}
           onClick={this.toggleVisibility}
         />
-        <input type="button" value="--" onClick={this.collapseVisibilityAll} />
-        <input type="button" value="++" onClick={this.expandVisibilityAll} />
+        <input type="button" value="─ ─" onClick={this.collapseVisibilityAll} />
+        <input type="button" value="┿┿" onClick={this.expandVisibilityAll} />
         {/* Render the this property's scopes */}
         {visible && (
           <ScopedPropertyListComponent

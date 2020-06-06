@@ -10,6 +10,7 @@ export interface IndexComponentProps {
   flattenArrays?: boolean;
   autoExpandScopes?: boolean;
   showPropertiesOnly?: boolean;
+  showFlightConfigs?: boolean;
 }
 
 export interface IndexComponentState {
@@ -75,7 +76,7 @@ export class IndexComponent extends React.Component<
         <ScopedPropertyComponent
           property={propertyTree}
           autoExpandScopes={this.props.autoExpandScopes}
-          visibilityDepth={this.props.autoExpandScopes ? 1000 : 0}
+          visibilityDepth={this.props.autoExpandScopes ? 0 : 1000}
         />
       </React.Fragment>
     );
@@ -91,10 +92,13 @@ export class IndexComponent extends React.Component<
       this.props.useCache
     );
 
-    const { showPropertiesOnly, flattenArrays } = this.props;
+    const { showFlightConfigs, showPropertiesOnly, flattenArrays } = this.props;
     let propertyTree = new ScopedProperty(showPropertiesOnly ? "properties" : "config", null, false);
 
     for (const config of loadedConfigs.configs) {
+      if (!showFlightConfigs && config.scope && config.scope.experimentId) {
+        continue;
+      }
       const configProperty = ScopedProperty.parseObject(
         propertyTree.key,
         showPropertiesOnly ? config.config.properties : config.config,

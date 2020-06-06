@@ -72,9 +72,11 @@ button {
 .value-group > input {
   border: none;
   background: none;
-  padding: 0 10px 0 5px;
+  padding: 0 6px 0 3px;
   border-right: 1px solid grey;
   opacity: 0.5;
+  font-size: 9px;
+  text-transform: uppercase;
 }
 
 .removable-scope .scope {

@@ -15,6 +15,7 @@ export class App extends React.Component<
   private readonly chkFlattenArrays = React.createRef<HTMLInputElement>();
   private readonly chkAutoExpandScopes = React.createRef<HTMLInputElement>();
   private readonly chkShowPropertiesOnly = React.createRef<HTMLInputElement>();
+  private readonly chkShowFlightConfigs = React.createRef<HTMLInputElement>();
 
   constructor(props: any) {
     super(props);
@@ -27,7 +28,8 @@ export class App extends React.Component<
         flattenArrays: true,
         cmsIndexId, 
         autoExpandScopes: false,
-        showPropertiesOnly: true
+        showPropertiesOnly: true,
+        showFlightConfigs: false
       }
     };
   }
@@ -58,19 +60,23 @@ export class App extends React.Component<
         <div className="input">
           <label>Disable cache: </label>
           <input type="checkbox" ref={this.chkDisableCacheRef} defaultChecked={!indexProps.useCache} />
-        </div>{" "}
+        </div>
         <div className="input">
           <label>Flatten arrays: </label>
           <input type="checkbox" ref={this.chkFlattenArrays} defaultChecked={indexProps.flattenArrays} />
-        </div>{" "}
+        </div>
         <div className="input">
           <label>Auto expand scopes: </label>
           <input type="checkbox" ref={this.chkAutoExpandScopes} defaultChecked={indexProps.autoExpandScopes} />
-        </div>{" "}
+        </div>
         <div className="input">
           <label>Show only properties: </label>
           <input type="checkbox" ref={this.chkShowPropertiesOnly} defaultChecked={indexProps.showPropertiesOnly} />
-        </div>{" "}
+        </div>
+        <div className="input">
+          <label>Show flight configs: </label>
+          <input type="checkbox" ref={this.chkShowFlightConfigs} defaultChecked={indexProps.showFlightConfigs} />
+        </div>
         <div className="input">
           <label />
           <button onClick={this.onLoadConfigIndex}>Load</button>
@@ -87,6 +93,7 @@ export class App extends React.Component<
         flattenArrays: !!(this.chkFlattenArrays.current?.checked as boolean),
         autoExpandScopes: !!(this.chkAutoExpandScopes.current?.checked as boolean),
         showPropertiesOnly: !!(this.chkShowPropertiesOnly.current?.checked as boolean),
+        showFlightConfigs: !!(this.chkShowFlightConfigs.current?.checked as boolean),
       }
     });
   };
