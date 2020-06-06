@@ -139,7 +139,7 @@ export class ScopedListComponent<
 
     return (
       <div className="diff">
-        {(!hasFirst && hasSecond && <div>No difference</div>) || null}
+        {(!hasFirst && !hasSecond && <div>No difference</div>) || null}
         {(hasFirst && <div>Not present in:</div>) || null}
         {this.renderScopeList(configDiff.firstOnly, null, "red")}
         {(hasSecond && <div>Unique to this:</div>) || null}
