@@ -41,11 +41,13 @@ button {
   font-weight: bold;
 }
 
+.key,
+.value {
+  margin-right: 10px;
+}
+
 .property {
   font-family: "Courier New", Courier, monospace;
-  margin: 10px 0 0 30px;
-  border: 1px solid black;
-  border-width: 1px 0 0 1px;
   padding: 5px;
 }
 
@@ -56,10 +58,23 @@ button {
 
 .value-group {
   color: black;
-  margin: 10px 0 0 0;
+  padding: 3px 0 0 5px;
+}
+
+.property,
+.value-group {
+  margin-left: 30px;
   border: 1px solid black;
-  border-width: 1px 0 0 1px;
-  padding: 5px;
+  border-width: 0 0 0 1px;
+}
+
+.property > input,
+.value-group > input {
+  border: none;
+  background: none;
+  padding: 0 10px 0 5px;
+  border-right: 1px solid grey;
+  opacity: 0.5;
 }
 
 .removable-scope .scope {

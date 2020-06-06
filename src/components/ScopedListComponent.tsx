@@ -134,11 +134,15 @@ export class ScopedListComponent<
       return null;
     }
 
+    const hasFirst = configDiff.firstOnly.length;
+    const hasSecond = configDiff.secondOnly.length;
+
     return (
       <div className="diff">
-        {(configDiff.firstOnly.length && <div>Not present in:</div>) || null}
+        {(!hasFirst && hasSecond && <div>No difference</div>) || null}
+        {(hasFirst && <div>Not present in:</div>) || null}
         {this.renderScopeList(configDiff.firstOnly, null, "red")}
-        {(configDiff.secondOnly.length && <div>Unique to this:</div>) || null}
+        {(hasSecond && <div>Unique to this:</div>) || null}
         {this.renderScopeList(configDiff.secondOnly, null, "green")}
         {/* Intersection:
         {this.renderScopeList(configDiff.intersection, null, "blue")} */}

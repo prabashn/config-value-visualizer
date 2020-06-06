@@ -1,9 +1,14 @@
 import { ScopedConfig, IndexType, Config } from "../models";
 
+export interface LoadedConfigs {
+  index?: IndexType;
+  configs: Array<ScopedConfig>;
+}
+
 export async function loadConfigsFromIndex(
   cmsIndexId: string,
   useCache: boolean
-): Promise<Array<ScopedConfig>> {
+): Promise<LoadedConfigs> {
   const index = await cachedDocumentFetch<IndexType>(
     cmsIndexId,
     "Index",
@@ -11,16 +16,16 @@ export async function loadConfigsFromIndex(
   );
 
   if (!index) {
-    return [];
+    return { configs: [] };
   }
 
   const configRefs = index && index.configs;
   if (!configRefs || !configRefs.length) {
     console.error(`No config entries for index: ${cmsIndexId}`);
-    return [];
+    return { configs: [] };
   }
 
-  return await Promise.all(
+  const configs = await Promise.all(
     configRefs.map(async configRef => {
       const configIdIndex = configRef.href.lastIndexOf("/");
       const configId = configRef.href.substr(configIdIndex + 1);
@@ -30,6 +35,11 @@ export async function loadConfigsFromIndex(
       } as ScopedConfig;
     })
   );
+
+  return {
+    index,
+    configs
+  };
 }
 
 async function cachedDocumentFetch<T>(

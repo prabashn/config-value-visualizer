@@ -51,19 +51,15 @@ export class ScopedPropertyComponent extends React.Component<
     return (
       <div className="property" key={property.key}>
         <span className="key">
-          ["{property.key}"] {property.isArray ? "(Array)" : ""}
-          <input
-            type="button"
-            value={visible ? "-" : "+"}
-            onClick={this.toggleVisibility}
-          />
-          <input
-            type="button"
-            value="--"
-            onClick={this.collapseVisibilityAll}
-          />
-          <input type="button" value="++" onClick={this.expandVisibilityAll} />
+          ["{property.key}"]{property.isArray ? " (Array)" : ""}
         </span>
+        <input
+          type="button"
+          value={visible ? "-" : "+"}
+          onClick={this.toggleVisibility}
+        />
+        <input type="button" value="--" onClick={this.collapseVisibilityAll} />
+        <input type="button" value="++" onClick={this.expandVisibilityAll} />
         {/* Render the this property's scopes */}
         {visible && (
           <ScopedPropertyListComponent
@@ -74,6 +70,7 @@ export class ScopedPropertyComponent extends React.Component<
         {/* Render the this property's value scopes */}
         {visible && (
           <ScopedValuesListComponent
+            propertyKey={property.key}
             scopedValues={property.values}
             autoExpandScopes={autoExpandScopes}
           />

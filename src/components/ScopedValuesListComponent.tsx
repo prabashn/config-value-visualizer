@@ -4,6 +4,7 @@ import { ScopedPropertyValue } from "../models";
 import { ScopedListComponent } from "./ScopedListComponent";
 
 export interface ScopedValuesListComponentProps {
+  propertyKey: string;
   scopedValues: Array<ScopedPropertyValue>;
   autoExpandScopes?: boolean;
 }
@@ -42,18 +43,38 @@ export class ScopedValuesListComponent extends React.Component<
 
       return (
         <div className="value-group">
-          <div className="value">
-            = {typeof value === "string" ? `"${value}"` : value}
-          </div>
-            <ScopedListComponent
-              scopedItems={scopedValues}
-              autoExpandScopes={this.props.autoExpandScopes}
-              canBeRemovedCheck={
-                checkForRemovalEligibility ? canBeRemovedCheck : undefined
-              }
-            />
+          <span className="value">= {this.renderValue(value)}</span>
+          <ScopedListComponent
+            scopedItems={scopedValues}
+            autoExpandScopes={this.props.autoExpandScopes}
+            canBeRemovedCheck={
+              checkForRemovalEligibility ? canBeRemovedCheck : undefined
+            }
+          />
         </div>
       );
     });
+  }
+
+  private renderValue(value: any): React.ReactNode {
+    const valueIsString = typeof value === "string";
+    const valueAsString = valueIsString ? `"${value}"` : `${value}`;
+
+    if (valueIsString) {
+      const hrefMatch =
+        this.props.propertyKey === "href" &&
+        value.match(/experienceConfigIndex\/([a-z0-9]+)$/i);
+
+      if (hrefMatch) {
+        const id = hrefMatch[1];
+        return (
+          <a href={`?id=${id}`} target="_blank" rel="noopener noreferrer">
+            {valueAsString}
+          </a>
+        );
+      }
+    }
+
+    return valueAsString;
   }
 }

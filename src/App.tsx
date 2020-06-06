@@ -14,15 +14,20 @@ export class App extends React.Component<
   private readonly chkDisableCacheRef = React.createRef<HTMLInputElement>();
   private readonly chkFlattenArrays = React.createRef<HTMLInputElement>();
   private readonly chkAutoExpandScopes = React.createRef<HTMLInputElement>();
+  private readonly chkShowPropertiesOnly = React.createRef<HTMLInputElement>();
 
   constructor(props: any) {
     super(props);
+
+    var cmsIndexId = (new URL(window.location.href)).searchParams.get("id") || "BBUsYQa";
+
     this.state = { 
       indexProps: {
         useCache: true,
         flattenArrays: true,
-        cmsIndexId: "BBUsYQa", 
-        autoExpandScopes: true 
+        cmsIndexId, 
+        autoExpandScopes: false,
+        showPropertiesOnly: true
       }
     };
   }
@@ -63,6 +68,10 @@ export class App extends React.Component<
           <input type="checkbox" ref={this.chkAutoExpandScopes} defaultChecked={indexProps.autoExpandScopes} />
         </div>{" "}
         <div className="input">
+          <label>Show only properties: </label>
+          <input type="checkbox" ref={this.chkShowPropertiesOnly} defaultChecked={indexProps.showPropertiesOnly} />
+        </div>{" "}
+        <div className="input">
           <label />
           <button onClick={this.onLoadConfigIndex}>Load</button>
         </div>
@@ -76,7 +85,8 @@ export class App extends React.Component<
         cmsIndexId: this.txtCmsIdRef.current?.value as string,
         useCache: !(this.chkDisableCacheRef.current?.checked as boolean),
         flattenArrays: !!(this.chkFlattenArrays.current?.checked as boolean),
-        autoExpandScopes: !!(this.chkAutoExpandScopes.current?.checked as boolean)
+        autoExpandScopes: !!(this.chkAutoExpandScopes.current?.checked as boolean),
+        showPropertiesOnly: !!(this.chkShowPropertiesOnly.current?.checked as boolean),
       }
     });
   };

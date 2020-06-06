@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ScopedProperty } from "../models";
+import { ScopedProperty, IndexType } from "../models";
 import { ScopedPropertyComponent } from "./ScopedPropertyComponent";
 import { loadConfigsFromIndex } from "../services";
 import { isEqual } from "lodash-es";
@@ -9,9 +9,11 @@ export interface IndexComponentProps {
   useCache: boolean;
   flattenArrays?: boolean;
   autoExpandScopes?: boolean;
+  showPropertiesOnly?: boolean;
 }
 
 export interface IndexComponentState {
+  index?: IndexType;
   propertyTree?: ScopedProperty;
   loadedProps?: IndexComponentProps;
 }
@@ -55,23 +57,26 @@ export class IndexComponent extends React.Component<
   }
 
   render(): React.ReactNode {
-    const propertyTree = this.state && this.state.propertyTree;
-
-    if (!propertyTree) {
+    if (!this.props.cmsIndexId) {
       return (
         <div className="message">Please specify a CMS Index ID to load!</div>
       );
     }
 
+    const propertyTree = this.state && this.state.propertyTree;
+    if (!propertyTree) {
+      return <div className="message">Loading... Please wait</div>;
+    }
+
     return (
       <React.Fragment>
         {/* <span>Render count = {++this.renderCount}</span> */}
+        <h2>{this.state.index?.experienceType}</h2>
         <ScopedPropertyComponent
           property={propertyTree}
           autoExpandScopes={this.props.autoExpandScopes}
           visibilityDepth={this.props.autoExpandScopes ? 1000 : 0}
         />
-        ;
       </React.Fragment>
     );
   }
@@ -81,25 +86,30 @@ export class IndexComponent extends React.Component<
       return;
     }
 
-    const scopedConfigs = await loadConfigsFromIndex(
+    const loadedConfigs = await loadConfigsFromIndex(
       this.props.cmsIndexId,
       this.props.useCache
     );
 
-    let propertyTree = new ScopedProperty("properties", null, false);
+    const { showPropertiesOnly, flattenArrays } = this.props;
+    let propertyTree = new ScopedProperty(showPropertiesOnly ? "properties" : "config", null, false);
 
-    for (const config of scopedConfigs) {
+    for (const config of loadedConfigs.configs) {
       const configProperty = ScopedProperty.parseObject(
         propertyTree.key,
-        config.config.properties,
+        showPropertiesOnly ? config.config.properties : config.config,
         config,
         false,
-        !!this.props.flattenArrays
+        !!flattenArrays
       );
 
       propertyTree.merge(configProperty);
     }
 
-    this.setState({ propertyTree, loadedProps: this.props });
+    this.setState({
+      index: loadedConfigs.index,
+      propertyTree,
+      loadedProps: this.props
+    });
   }
 }
