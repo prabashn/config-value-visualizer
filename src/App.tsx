@@ -70,7 +70,7 @@ export class App extends React.Component<
           <input type="checkbox" ref={this.chkAutoExpandScopes} defaultChecked={indexProps.autoExpandScopes} />
         </div>
         <div className="input">
-          <label>Show only properties: </label>
+          <label>Show only config properties: </label>
           <input type="checkbox" ref={this.chkShowPropertiesOnly} defaultChecked={indexProps.showPropertiesOnly} />
         </div>
         <div className="input">

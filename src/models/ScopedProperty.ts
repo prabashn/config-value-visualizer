@@ -1,11 +1,17 @@
 import { ScopedPropertyValue } from "./ScopedPropertyValue";
-import { ScopedConfig, Scope } from "./ConfigTypes";
+import { ScopedConfig } from "./ConfigTypes";
 import { isEqual } from "lodash-es";
+import { GroupedScopedValues } from "./GroupedScopedValues";
 
 export class ScopedProperty {
   public readonly mergedConfigs: Array<ScopedConfig> = [];
   public readonly children: { [key: string]: ScopedProperty } = {};
-  public readonly values: Array<ScopedPropertyValue> = [];
+  public readonly valueGroups = new GroupedScopedValues();
+  public get childrenCount(): number {
+    return this._childrenCount;
+  }
+
+  private _childrenCount: number = 0;
 
   public get isArray() {
     return this._isArray;
@@ -22,13 +28,7 @@ export class ScopedProperty {
   }
 
   public addLeafValue(otherValue: ScopedPropertyValue): void {
-    // make sure we only add unique values
-    // (useful when we merge arrays without scoping with the array index)
-    if (this.values.some(thisValue => thisValue.equals(otherValue))) {
-      return;
-    }
-
-    this.values.push(otherValue);
+    this.valueGroups.addValue(otherValue);
   }
 
   public addChildProperty(otherProp: ScopedProperty): void {
@@ -39,6 +39,7 @@ export class ScopedProperty {
     }
 
     this.children[otherProp.key] = otherProp.clone();
+    this._childrenCount++;
   }
 
   private clone(): ScopedProperty {
@@ -48,8 +49,9 @@ export class ScopedProperty {
       this.isArray
     );
 
-    clone.values.push(...this.values);
+    clone.valueGroups.copyFrom(this.valueGroups);
     clone.mergedConfigs.push(...this.mergedConfigs);
+    clone._childrenCount = this._childrenCount;
 
     for (const childKey in this.children) {
       clone.children[childKey] = this.children[childKey].clone();
@@ -70,7 +72,8 @@ export class ScopedProperty {
       this._isArray = true;
     }
 
-    other.values.forEach(value => this.addLeafValue(value));
+    this.valueGroups.copyFrom(other.valueGroups);
+
     other.mergedConfigs.forEach(otherConfig =>
       this.addMergedConfig(otherConfig)
     );

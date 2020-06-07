@@ -2,29 +2,29 @@ import * as React from "react";
 import { ScopedConfig } from "../models";
 import { scopedConfigComparer, ScopedConfigDiff } from "../models/CompareList";
 
-export interface ScopedListComponentProps<T extends ScopedConfig> {
+export interface ScopesListComponentProps<T extends ScopedConfig> {
   scopedItems: Array<T>;
   canBeRemovedCheck?: (scopedValue: T) => boolean;
   autoExpandScopes?: boolean;
 }
 
-export interface ScopedListComponentState {
+export interface ScopesListComponentState {
   /**
    * for storing and comparing incoming props to previous props to see
    * if we're about to re-render due to a prop change
    */
-  prevProps?: ScopedListComponentProps<any>;
+  prevProps?: ScopesListComponentProps<any>;
   scopeVisibility: boolean | null;
   configDiff?: ScopedConfigDiff | null;
 }
 
-export class ScopedListComponent<
+export class ScopesListComponent<
   T extends ScopedConfig
 > extends React.Component<
-  ScopedListComponentProps<T>,
-  ScopedListComponentState
+  ScopesListComponentProps<T>,
+  ScopesListComponentState
 > {
-  constructor(props: ScopedListComponentProps<T>) {
+  constructor(props: ScopesListComponentProps<T>) {
     super(props);
 
     this.state = {
@@ -34,9 +34,9 @@ export class ScopedListComponent<
   }
 
   static getDerivedStateFromProps(
-    props: ScopedListComponentProps<any>,
-    state: ScopedListComponentState
-  ): ScopedListComponentState | null {
+    props: ScopesListComponentProps<any>,
+    state: ScopesListComponentState
+  ): ScopesListComponentState | null {
     // if we detect that the new props are different from the previously stored
     // props in state, that means props have been changed by parent, and we're going to re-render.
     // In this case, we want to make sure we use the props value for scope visibility.
@@ -59,7 +59,7 @@ export class ScopedListComponent<
     if (!scopeVisibility) {
       return (
         <React.Fragment>
-          {this.renderButtons(true)}
+          {this.renderButtons(true, scopedItems.length)}
           {this.renderScopeDiff()}
         </React.Fragment>
       );
@@ -67,19 +67,22 @@ export class ScopedListComponent<
 
     return (
       <React.Fragment>
-        {this.renderButtons(false)}
+        {this.renderButtons(false, scopedItems.length)}
         {this.renderScopeList(scopedItems, canBeRemovedCheck)}
         {this.renderScopeDiff()}
       </React.Fragment>
     );
   }
 
-  private renderButtons(isShowMode: boolean): React.ReactNode {
+  private renderButtons(
+    isShowMode: boolean,
+    scopesCount: number
+  ): React.ReactNode {
     return (
       <React.Fragment>
         <input
           type="button"
-          value={`${isShowMode ? "Show" : " Hide"} scopes`}
+          value={`${isShowMode ? "Show" : " Hide"} scopes (${scopesCount})`}
           onClick={this.toggleScopes}
         />
         <input type="button" value="Diff source" onClick={this.compare1} />
@@ -179,6 +182,6 @@ export class ScopedListComponent<
   }
 }
 
-export class ScopedPropertyListComponent extends ScopedListComponent<
+export class PropertyScopesListComponent extends ScopesListComponent<
   ScopedConfig
 > {}

@@ -9,7 +9,7 @@
 
 label {
   display: inline-block;
-  width: 200px;
+  width: 250px;
   margin: 0 10px;
   text-align: right;
 }
@@ -32,13 +32,22 @@ button {
 }
 
 .key {
-  color: red;
+  color: blue;
   font-weight: bold;
+}
+
+.key.toggle {
+  cursor: pointer;
+}
+
+.array .key {
+  color: red;
 }
 
 .value {
   color: black;
   font-weight: bold;
+  font-size: 14px;
 }
 
 .key,
@@ -47,7 +56,7 @@ button {
 }
 
 .property {
-  font-family: "Courier New", Courier, monospace;
+  font-family: "Consolas", "Courier New", Courier, monospace;
   padding: 5px;
 }
 
@@ -77,8 +86,14 @@ button {
   opacity: 0.5;
   font-size: 9px;
   text-transform: uppercase;
+  cursor: pointer;
+  outline: none;
 }
 
+.scope {
+  color: #444;
+  font-size: 12px;
+}
 .removable-scope .scope {
   /* text-decoration: line-through; */
   color: grey;
