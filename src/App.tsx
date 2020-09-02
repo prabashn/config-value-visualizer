@@ -1,5 +1,7 @@
-import * as React from "react";
 import "./styles.css";
+
+import * as React from "react";
+
 import { IndexComponent, IndexComponentProps } from "./components";
 
 interface AppState {
@@ -15,7 +17,7 @@ export class App extends React.Component<
   private readonly chkFlattenArrays = React.createRef<HTMLInputElement>();
   private readonly chkAutoExpandScopes = React.createRef<HTMLInputElement>();
   private readonly chkShowPropertiesOnly = React.createRef<HTMLInputElement>();
-  private readonly chkShowFlightConfigs = React.createRef<HTMLInputElement>();
+  private readonly ddlFlightFilter = React.createRef<HTMLSelectElement>();
 
   constructor(props: any) {
     super(props);
@@ -29,7 +31,7 @@ export class App extends React.Component<
         cmsIndexId, 
         autoExpandScopes: false,
         showPropertiesOnly: true,
-        showFlightConfigs: false
+        flightFilter: "no-flights"
       }
     };
   }
@@ -75,7 +77,11 @@ export class App extends React.Component<
         </div>
         <div className="input">
           <label>Show flight configs: </label>
-          <input type="checkbox" ref={this.chkShowFlightConfigs} defaultChecked={indexProps.showFlightConfigs} />
+          <select ref={this.ddlFlightFilter}>
+            <option value="no-flights" selected>Exclude Flights</option>
+            <option value="with-flights">Include Flights</option>
+            <option value="only-flights">Only Flights</option>
+          </select>
         </div>
         <div className="input">
           <label />
@@ -93,7 +99,7 @@ export class App extends React.Component<
         flattenArrays: !!(this.chkFlattenArrays.current?.checked as boolean),
         autoExpandScopes: !!(this.chkAutoExpandScopes.current?.checked as boolean),
         showPropertiesOnly: !!(this.chkShowPropertiesOnly.current?.checked as boolean),
-        showFlightConfigs: !!(this.chkShowFlightConfigs.current?.checked as boolean),
+        flightFilter: this.ddlFlightFilter.current?.value as any
       }
     });
   };

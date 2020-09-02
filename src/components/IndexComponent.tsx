@@ -1,8 +1,10 @@
 import * as React from "react";
-import { ScopedProperty, IndexType } from "../models";
+
+import { IndexType, ScopedProperty } from "../models";
+
 import { ScopedPropertyComponent } from "./ScopedPropertyComponent";
-import { loadConfigsFromIndex } from "../services";
 import { isEqual } from "lodash-es";
+import { loadConfigsFromIndex } from "../services";
 
 export interface IndexComponentProps {
   cmsIndexId?: string;
@@ -10,7 +12,7 @@ export interface IndexComponentProps {
   flattenArrays?: boolean;
   autoExpandScopes?: boolean;
   showPropertiesOnly?: boolean;
-  showFlightConfigs?: boolean;
+  flightFilter: "no-flights" | "only-flights" | "with-flights"
 }
 
 export interface IndexComponentState {
@@ -92,13 +94,23 @@ export class IndexComponent extends React.Component<
       this.props.useCache
     );
 
-    const { showFlightConfigs, showPropertiesOnly, flattenArrays } = this.props;
+    const { flightFilter, showPropertiesOnly, flattenArrays } = this.props;
     let propertyTree = new ScopedProperty(showPropertiesOnly ? "properties" : "config", null, false);
 
     for (const config of loadedConfigs.configs) {
-      if (!showFlightConfigs && config.scope && config.scope.experimentId) {
-        continue;
+      
+      const hasFlight = config.scope && config.scope.experimentId;
+      
+      if (hasFlight ) {
+        if (flightFilter === "no-flights") {
+          continue;
+        }
+      } else {
+        if (flightFilter === "only-flights") {
+          continue;
+        }
       }
+
       const configProperty = ScopedProperty.parseObject(
         propertyTree.key,
         showPropertiesOnly ? config.config.properties : config.config,
