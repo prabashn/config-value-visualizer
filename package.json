@@ -20,6 +20,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "start:server": "http-server -C ./ssl/localhost.crt -K ./ssl/localhost.key -S --cors -p 443 -a localhost.msn.com ./build",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"

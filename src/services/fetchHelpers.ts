@@ -1,4 +1,7 @@
-import { ScopedConfig, IndexType, Config } from "../models";
+import { Config, ConfigRef, IndexType, ScopedConfig } from "../models";
+import { configRefKey, configRefToString, isValidConfigRef, memoizedFetchText } from "../helpers";
+
+import { memoize } from "lodash-es";
 
 export interface LoadedConfigs {
   index?: IndexType;
@@ -6,12 +9,12 @@ export interface LoadedConfigs {
 }
 
 export async function loadConfigsFromIndex(
-  cmsIndexId: string,
+  configRef: ConfigRef,
   useCache: boolean
 ): Promise<LoadedConfigs> {
   const index = await cachedDocumentFetch<IndexType>(
-    cmsIndexId,
-    "Index",
+    configRef,
+    "index.json",
     useCache
   );
 
@@ -19,19 +22,18 @@ export async function loadConfigsFromIndex(
     return { configs: [] };
   }
 
-  const configRefs = index && index.configs;
-  if (!configRefs || !configRefs.length) {
-    console.error(`No config entries for index: ${cmsIndexId}`);
+  const scopedConfigs = index && index.configs;
+  if (!scopedConfigs || !scopedConfigs.length) {
+    console.error(`No config entries for index: ${configRefToString(configRef)}`);
     return { configs: [] };
   }
 
   const configs = await Promise.all(
-    configRefs.map(async configRef => {
-      const configIdIndex = configRef.href.lastIndexOf("/");
-      const configId = configRef.href.substr(configIdIndex + 1);
+    scopedConfigs.map(async scopedConfig => {
+      const configSrc = scopedConfig.src;
       return {
-        scope: configRef.targetScope,
-        config: await cachedDocumentFetch<Config>(configId, "Config", useCache)
+        scope: scopedConfig.targetScope,
+        config: await cachedDocumentFetch<Config>(configRef, configSrc, useCache)
       } as ScopedConfig;
     })
   );
@@ -42,36 +44,43 @@ export async function loadConfigsFromIndex(
   };
 }
 
+const getFeatureManifest = memoize(
+  async (configRef: ConfigRef) => {
+
+    let buildNumber: string;
+
+    // if alpha num is present assume alias
+    if (configRef.build.match(/[a-z]/)) {
+      const versionUrl = `https://assets.msn.com/bundles/v1/${configRef.appType}/${configRef.build}/v`;
+      buildNumber = ((await memoizedFetchText(versionUrl)) || "").replace(/(^[\s]+|[\s]+$)/g, "");
+    } else {
+      buildNumber = configRef.build;
+    }
+
+    const manifestUrl = `https://assets.msn.com/periconfigs/feature-manifests/${configRef.appType.toLowerCase()}/${buildNumber}.json`
+    const manifest = JSON.parse(await memoizedFetchText(manifestUrl) || "{}").fileHashes || {};
+    return manifest as { [configFileKey: string]: string };
+
+  },
+  configRef => `${configRef.build}|${configRef.appType}|feature`
+);
+
 async function cachedDocumentFetch<T>(
-  docId: string,
-  docType: string,
+  configRef: ConfigRef,
+  configSrc: string,
   useCache: boolean
 ): Promise<T | undefined> {
-  if (!docId) {
+
+  if (!isValidConfigRef(configRef)) {
     return;
   }
 
-  // if json exists on storage, use that
-  let json = useCache && localStorage.getItem(docId);
-
-  // else try to fetch from network
-  if (!json) {
-    const response = await fetch(
-      `https://assets.msn.com/config/v1/cms/api/amp/Document/${docId}`
-    );
-
-    if (!response) {
-      console.error(`Invalid response while fetching ${docType}: ${docId}`);
-      return;
-    }
-
-    json = await response.text();
-    if (!json) {
-      console.error(`Invalid json while fetching ${docType}: ${docId}`);
-      return;
-    }
-  }
-
-  localStorage.setItem(docId, json);
-  return JSON.parse(json) as T;
+  const manifest = await getFeatureManifest(configRef);
+  const manifestKey = configRefKey(configRef, configSrc);
+  const hashedFileName = manifest[manifestKey];
+  const hashedUrl = `https://assets.msn.com/periconfigs/feature-configs/${manifestKey}/${hashedFileName}`;
+  let jsonString = await memoizedFetchText(hashedUrl) || "{}";
+  let json = JSON.parse(jsonString) as T;
+  return json;
 }
+
