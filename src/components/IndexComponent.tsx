@@ -1,13 +1,15 @@
 import * as React from "react";
 
-import { IndexType, ScopedProperty } from "../models";
+import { ConfigRef, IndexType, ScopedProperty } from "../models";
 
 import { ScopedPropertyComponent } from "./ScopedPropertyComponent";
 import { isEqual } from "lodash-es";
+import { isValidConfigRef } from "../helpers";
 import { loadConfigsFromIndex } from "../services";
 
 export interface IndexComponentProps {
-  cmsIndexId?: string;
+  //cmsIndexId?: string;
+  configRef: ConfigRef;
   useCache: boolean;
   flattenArrays?: boolean;
   autoExpandScopes?: boolean;
@@ -60,9 +62,9 @@ export class IndexComponent extends React.Component<
   }
 
   render(): React.ReactNode {
-    if (!this.props.cmsIndexId) {
+    if (!isValidConfigRef(this.props.configRef)) {
       return (
-        <div className="message">Please specify a CMS Index ID to load!</div>
+        <div className="message">Please specify valid App Type / Shared Namespace / Experience Type / Instance ID load!</div>
       );
     }
 
@@ -85,12 +87,12 @@ export class IndexComponent extends React.Component<
   }
 
   async loadState(): Promise<void> {
-    if (!this.props.cmsIndexId || isEqual(this.props, this.state.loadedProps)) {
+    if (!isValidConfigRef(this.props.configRef) || isEqual(this.props, this.state.loadedProps)) {
       return;
     }
 
     const loadedConfigs = await loadConfigsFromIndex(
-      this.props.cmsIndexId,
+      this.props.configRef,
       this.props.useCache
     );
 

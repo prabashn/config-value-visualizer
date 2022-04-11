@@ -4,7 +4,7 @@ export interface IndexType {
 }
 
 export interface ScopedConfigRef {
-  href: string;
+  src: string;
   description?: string;
   targetScope?: Scope;
 }
